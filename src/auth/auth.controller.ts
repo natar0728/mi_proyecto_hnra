@@ -1,0 +1,31 @@
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
+import { LoginDto } from './login.dto';
+import { AuthService } from './auth.service';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+@Controller('auth')
+export class AuthController {
+  constructor(private authService: AuthService) {}
+
+  @Post('login')
+  async login(@Body() data: LoginDto) {
+    const userToken = await this.authService.validateUser(data);
+
+    if (!userToken) {
+      throw new HttpException(
+        'Credenciales inválidas',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    return userToken;
+  }
+
+}
+
